@@ -1,6 +1,6 @@
 # Fix_Smart_CMS v 1.0.0 - Complaint Management System
 
-[![Version](https://img.shields.io/badge/version- 1.0.0-blue.svg)](https://github.com/your-org/Fix_Smart_CMS_v 1.0.0)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/your-org/Fix_Smart_CMS_v1.0.4)
 [![Node.js](https://img.shields.io/badge/node.js-22+-green.svg)](https://nodejs.org/)
 [![PostgreSQL](https://img.shields.io/badge/postgresql-13+-blue.svg)](https://postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/typescript-5.5+-blue.svg)](https://www.typescriptlang.org/)
