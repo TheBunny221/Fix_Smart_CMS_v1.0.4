@@ -81,7 +81,7 @@ const AdminDashboard: React.FC = () => {
   const { translations } = useAppSelector((state) => state.language);
   const { getAppName } = useConfigManager();
   const { t } = useAppTranslation();
-  
+
   // Get app name from centralized configuration
   const appName = getAppName();
 
@@ -383,8 +383,7 @@ const AdminDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {(metrics?.avgResolutionTime || 0).toFixed(1)}
-              {t("reports.kpi.days")}
+              {(metrics?.avgResolutionTime || 0).toFixed(1) + " " + t("reports.kpi.days")}
             </div>
             <p className="text-xs text-muted-foreground">
               {t("dashboard.admin.averageClosureTime")}

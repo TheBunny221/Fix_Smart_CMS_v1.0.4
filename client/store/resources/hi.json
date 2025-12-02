@@ -759,7 +759,6 @@
       "reportScope": "रिपोर्ट स्कोप",
       "period": "अवधि"
     },
-
     "loading": {
       "chartLibraries": "चार्ट लाइब्रेरी लोड हो रही है..."
     },
@@ -877,112 +876,112 @@
       }
     },
     "users": {
-      "title": "User Management",
-      "subtitle": "Manage all users in the system",
+      "title": "उपयोगकर्ता प्रबंधन",
+      "subtitle": "सिस्टम में सभी उपयोगकर्ताओं का प्रबंधन करें",
       "roles": {
-        "citizen": "Citizen",
-        "wardOfficer": "Ward Officer",
-        "maintenanceTeam": "Maintenance Team",
-        "administrator": "Administrator"
+        "citizen": "नागरिक",
+        "wardOfficer": "वार्ड अधिकारी",
+        "maintenanceTeam": "रखरखाव टीम",
+        "administrator": "प्रशासक"
       },
       "stats": {
-        "totalUsers": "Total Users",
-        "activeUsers": "Active Users",
-        "citizens": "Citizens",
-        "wardOfficers": "Ward Officers",
-        "maintenance": "Maintenance"
+        "totalUsers": "कुल उपयोगकर्ता",
+        "activeUsers": "सक्रिय उपयोगकर्ता",
+        "citizens": "नागरिक",
+        "wardOfficers": "वार्ड अधिकारी",
+        "maintenance": "रखरखाव"
       },
       "filters": {
-        "searchPlaceholder": "Search users...",
-        "rolePlaceholder": "Filter by role",
-        "statusPlaceholder": "Filter by status",
-        "allRoles": "All Roles",
-        "allStatus": "All Status",
-        "reset": "Reset Filters"
+        "searchPlaceholder": "उपयोगकर्ता खोजें...",
+        "rolePlaceholder": "भूमिका के अनुसार फ़िल्टर करें",
+        "statusPlaceholder": "स्थिति के अनुसार फ़िल्टर करें",
+        "allRoles": "सभी भूमिकाएं",
+        "allStatus": "सभी स्थितियां",
+        "reset": "फ़िल्टर रीसेट करें"
       },
       "table": {
-        "title": "Users ({{count}})",
-        "loading": "Loading users...",
-        "noWard": "No ward assigned",
+        "title": "उपयोगकर्ता ({{count}})",
+        "loading": "उपयोगकर्ता लोड हो रहे हैं...",
+        "noWard": "कोई वार्ड आवंटित नहीं",
         "columns": {
-          "name": "User",
-          "role": "Role",
-          "ward": "Ward",
-          "status": "Status",
-          "activity": "Complaints",
-          "actions": "Actions"
+          "name": "उपयोगकर्ता",
+          "role": "भूमिका",
+          "ward": "वार्ड",
+          "status": "स्थिति",
+          "activity": "शिकायतें",
+          "actions": "कार्रवाई"
         }
       },
       "status": {
-        "active": "Active",
-        "inactive": "Inactive"
+        "active": "सक्रिय",
+        "inactive": "निष्क्रिय"
       },
       "counts": {
-        "submitted": "Submitted: {{count}}",
-        "assigned": "Assigned: {{count}}"
+        "submitted": "जमा की गई: {{count}}",
+        "assigned": "आवंटित: {{count}}"
       },
       "pagination": {
-        "showing": "Showing {{start}} to {{end}} of {{total}} entries"
+        "showing": "{{total}} प्रविष्टियों में से {{start}} से {{end}} दिखा रहा है"
       },
       "actions": {
-        "exportUsers": "Export Users",
-        "addUser": "Add New User",
-        "editUser": "Edit user",
-        "deactivateUser": "Deactivate user",
-        "activateUser": "Activate user",
-        "createUser": "Create User",
-        "updateUser": "Update User",
-        "creating": "Creating...",
-        "updating": "Updating..."
+        "exportUsers": "उपयोगकर्ता निर्यात (Export)",
+        "addUser": "नया उपयोगकर्ता जोड़ें",
+        "editUser": "उपयोगकर्ता संपादित करें",
+        "deactivateUser": "उपयोगकर्ता को निष्क्रिय करें",
+        "activateUser": "उपयोगकर्ता को सक्रिय करें",
+        "createUser": "उपयोगकर्ता बनाएं",
+        "updateUser": "उपयोगकर्ता अपडेट करें",
+        "creating": "बनाया जा रहा है...",
+        "updating": "अपडेट किया जा रहा है..."
       },
       "dialogs": {
         "add": {
-          "title": "Add New User",
-          "description": "Create a new user account in the system. All fields marked with * are required."
+          "title": "नया उपयोगकर्ता जोड़ें",
+          "description": "सिस्टम में एक नया उपयोगकर्ता खाता बनाएं। * वाले सभी फ़ील्ड अनिवार्य हैं।"
         },
         "edit": {
-          "title": "Edit User",
-          "description": "Update user information. Changes will be applied immediately."
+          "title": "उपयोगकर्ता संपादित करें",
+          "description": "उपयोगकर्ता जानकारी अपडेट करें। परिवर्तन तुरंत लागू किए जाएंगे।"
         }
       },
       "fields": {
-        "fullName": "Full Name",
-        "fullNamePlaceholder": "Enter full name",
-        "email": "Email",
-        "emailPlaceholder": "Enter email address",
-        "phoneNumber": "Phone Number",
-        "phonePlaceholder": "Enter phone number",
-        "role": "Role",
-        "rolePlaceholder": "Select role",
-        "ward": "Ward",
-        "wardPlaceholder": "Select ward (optional)",
-        "noWardOption": "No ward assigned",
-        "department": "Department",
-        "departmentPlaceholder": "Enter department"
+        "fullName": "पूरा नाम",
+        "fullNamePlaceholder": "पूरा नाम दर्ज करें",
+        "email": "ईमेल",
+        "emailPlaceholder": "ईमेल पता दर्ज करें",
+        "phoneNumber": "फ़ोन नंबर",
+        "phonePlaceholder": "फ़ोन नंबर दर्ज करें",
+        "role": "भूमिका (Role)",
+        "rolePlaceholder": "भूमिका चुनें",
+        "ward": "वार्ड",
+        "wardPlaceholder": "वार्ड चुनें (वैकल्पिक)",
+        "noWardOption": "कोई वार्ड आवंटित नहीं",
+        "department": "विभाग",
+        "departmentPlaceholder": "विभाग दर्ज करें"
       },
       "toasts": {
-        "activated": "User activated successfully",
-        "activateFailed": "Failed to activate user",
-        "deactivated": "User deactivated successfully",
-        "deactivateFailed": "Failed to deactivate user",
-        "createSuccess": "User created successfully",
-        "updateSuccess": "User updated successfully",
-        "unexpectedError": "Unexpected error",
-        "exportFailed": "Export failed",
-        "exportFailedDescription": "Could not export users"
+        "activated": "उपयोगकर्ता सफलतापूर्वक सक्रिय किया गया",
+        "activateFailed": "उपयोगकर्ता को सक्रिय करने में विफल",
+        "deactivated": "उपयोगकर्ता सफलतापूर्वक निष्क्रिय किया गया",
+        "deactivateFailed": "उपयोगकर्ता को निष्क्रिय करने में विफल",
+        "createSuccess": "उपयोगकर्ता सफलतापूर्वक बनाया गया",
+        "updateSuccess": "उपयोगकर्ता सफलतापूर्वक अपडेट किया गया",
+        "unexpectedError": "अनपेक्षित त्रुटि",
+        "exportFailed": "निर्यात (Export) विफल",
+        "exportFailedDescription": "उपयोगकर्ताओं को निर्यात नहीं किया जा सका"
       },
       "validation": {
-        "fullNameMin": "Full name must be at least 3 characters.",
-        "emailRequired": "Email is required.",
-        "emailInvalid": "Please enter a valid email address.",
-        "roleRequired": "Role is required.",
-        "departmentRequired": "Department is required for maintenance team users.",
-        "title": "Validation errors",
-        "message": "Please fix the highlighted fields before submitting."
+        "fullNameMin": "पूरा नाम कम से कम 3 अक्षरों का होना चाहिए।",
+        "emailRequired": "ईमेल अनिवार्य है।",
+        "emailInvalid": "कृपया एक मान्य ईमेल पता दर्ज करें।",
+        "roleRequired": "भूमिका अनिवार्य है।",
+        "departmentRequired": "रखरखाव टीम के उपयोगकर्ताओं के लिए विभाग अनिवार्य है।",
+        "title": "सत्यापन त्रुटियाँ",
+        "message": "कृपया जमा करने से पहले हाइलाइट किए गए फ़ील्ड को ठीक करें।"
       },
       "errors": {
-        "loadTitle": "Error Loading Data",
-        "loadMessage": "Failed to load user data. Please try again."
+        "loadTitle": "डेटा लोड करने में त्रुटि",
+        "loadMessage": "उपयोगकर्ता डेटा लोड करने में विफल। कृपया पुन: प्रयास करें।"
       }
     }
   },
