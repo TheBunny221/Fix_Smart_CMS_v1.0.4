@@ -875,6 +875,115 @@
         "complaintPriorities": "शिकायत प्राथमिकताएं (JSON)",
         "complaintStatuses": "शिकायत स्थितियां (JSON)"
       }
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage all users in the system",
+      "roles": {
+        "citizen": "Citizen",
+        "wardOfficer": "Ward Officer",
+        "maintenanceTeam": "Maintenance Team",
+        "administrator": "Administrator"
+      },
+      "stats": {
+        "totalUsers": "Total Users",
+        "activeUsers": "Active Users",
+        "citizens": "Citizens",
+        "wardOfficers": "Ward Officers",
+        "maintenance": "Maintenance"
+      },
+      "filters": {
+        "searchPlaceholder": "Search users...",
+        "rolePlaceholder": "Filter by role",
+        "statusPlaceholder": "Filter by status",
+        "allRoles": "All Roles",
+        "allStatus": "All Status",
+        "reset": "Reset Filters"
+      },
+      "table": {
+        "title": "Users ({{count}})",
+        "loading": "Loading users...",
+        "noWard": "No ward assigned",
+        "columns": {
+          "name": "User",
+          "role": "Role",
+          "ward": "Ward",
+          "status": "Status",
+          "activity": "Complaints",
+          "actions": "Actions"
+        }
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "counts": {
+        "submitted": "Submitted: {{count}}",
+        "assigned": "Assigned: {{count}}"
+      },
+      "pagination": {
+        "showing": "Showing {{start}} to {{end}} of {{total}} entries"
+      },
+      "actions": {
+        "exportUsers": "Export Users",
+        "addUser": "Add New User",
+        "editUser": "Edit user",
+        "deactivateUser": "Deactivate user",
+        "activateUser": "Activate user",
+        "createUser": "Create User",
+        "updateUser": "Update User",
+        "creating": "Creating...",
+        "updating": "Updating..."
+      },
+      "dialogs": {
+        "add": {
+          "title": "Add New User",
+          "description": "Create a new user account in the system. All fields marked with * are required."
+        },
+        "edit": {
+          "title": "Edit User",
+          "description": "Update user information. Changes will be applied immediately."
+        }
+      },
+      "fields": {
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Enter full name",
+        "email": "Email",
+        "emailPlaceholder": "Enter email address",
+        "phoneNumber": "Phone Number",
+        "phonePlaceholder": "Enter phone number",
+        "role": "Role",
+        "rolePlaceholder": "Select role",
+        "ward": "Ward",
+        "wardPlaceholder": "Select ward (optional)",
+        "noWardOption": "No ward assigned",
+        "department": "Department",
+        "departmentPlaceholder": "Enter department"
+      },
+      "toasts": {
+        "activated": "User activated successfully",
+        "activateFailed": "Failed to activate user",
+        "deactivated": "User deactivated successfully",
+        "deactivateFailed": "Failed to deactivate user",
+        "createSuccess": "User created successfully",
+        "updateSuccess": "User updated successfully",
+        "unexpectedError": "Unexpected error",
+        "exportFailed": "Export failed",
+        "exportFailedDescription": "Could not export users"
+      },
+      "validation": {
+        "fullNameMin": "Full name must be at least 3 characters.",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Please enter a valid email address.",
+        "roleRequired": "Role is required.",
+        "departmentRequired": "Department is required for maintenance team users.",
+        "title": "Validation errors",
+        "message": "Please fix the highlighted fields before submitting."
+      },
+      "errors": {
+        "loadTitle": "Error Loading Data",
+        "loadMessage": "Failed to load user data. Please try again."
+      }
     }
   },
   "index": {
