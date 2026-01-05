@@ -110,7 +110,10 @@ export const wardApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     // Get all wards (with optional subzones)
-    getWards: builder.query<ApiResponse<{ wards: Ward[] }>, { includeSubzones?: boolean; all?: boolean }>({
+    getWards: builder.query<
+      ApiResponse<{ wards: Ward[] }>,
+      { includeSubzones?: boolean; all?: boolean }
+    >({
       query: ({ includeSubzones = false, all = false } = {}) => ({
         url: "/users/wards",
         params: {
@@ -119,6 +122,30 @@ export const wardApi = baseApi.injectEndpoints({
         },
       }),
       providesTags: ["Ward"],
+      // Disable caching for debugging
+      keepUnusedDataFor: 0,
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success && data.data?.wards) {
+            // Import the action here to avoid circular dependency
+            const { setWardsWithSubZones } = await import(
+              "../slices/dataSlice"
+            );
+
+            // Only ensure subZones property exists
+            const wardsWithSubZones = data.data.wards.map((ward: any) => ({
+              ...ward,
+              subZones: ward.subZones || [], // Ensure subZones is always an array
+            }));
+
+            // Use the processed wards data
+            dispatch(setWardsWithSubZones(wardsWithSubZones));
+          }
+        } catch (error) {
+          // Query failed, no need to update Redux state
+        }
+      },
     }),
 
     getWardsWithBoundaries: builder.query<ApiResponse<Ward[]>, void>({
@@ -127,7 +154,10 @@ export const wardApi = baseApi.injectEndpoints({
     }),
 
     // Create ward
-    createWard: builder.mutation<ApiResponse<{ ward: Ward }>, CreateWardRequest>({
+    createWard: builder.mutation<
+      ApiResponse<{ ward: Ward }>,
+      CreateWardRequest
+    >({
       query: (body) => ({
         url: "/users/wards",
         method: "POST",
@@ -137,7 +167,10 @@ export const wardApi = baseApi.injectEndpoints({
     }),
 
     // Update ward
-    updateWard: builder.mutation<ApiResponse<{ ward: Ward }>, { id: string; data: UpdateWardRequest }>({
+    updateWard: builder.mutation<
+      ApiResponse<{ ward: Ward }>,
+      { id: string; data: UpdateWardRequest }
+    >({
       query: ({ id, data }) => ({
         url: `/users/wards/${id}`,
         method: "PUT",
@@ -156,7 +189,10 @@ export const wardApi = baseApi.injectEndpoints({
     }),
 
     // Create subzone
-    createSubZone: builder.mutation<ApiResponse<SubZone>, { wardId: string; data: CreateSubZoneRequest }>({
+    createSubZone: builder.mutation<
+      ApiResponse<SubZone>,
+      { wardId: string; data: CreateSubZoneRequest }
+    >({
       query: ({ wardId, data }) => ({
         url: `/users/wards/${wardId}/subzones`,
         method: "POST",
@@ -166,7 +202,10 @@ export const wardApi = baseApi.injectEndpoints({
     }),
 
     // Update subzone
-    updateSubZone: builder.mutation<ApiResponse<SubZone>, { wardId: string; id: string; data: UpdateSubZoneRequest }>({
+    updateSubZone: builder.mutation<
+      ApiResponse<SubZone>,
+      { wardId: string; id: string; data: UpdateSubZoneRequest }
+    >({
       query: ({ wardId, id, data }) => ({
         url: `/users/wards/${wardId}/subzones/${id}`,
         method: "PUT",
@@ -176,7 +215,10 @@ export const wardApi = baseApi.injectEndpoints({
     }),
 
     // Delete subzone
-    deleteSubZone: builder.mutation<ApiResponse<void>, { wardId: string; id: string }>({
+    deleteSubZone: builder.mutation<
+      ApiResponse<void>,
+      { wardId: string; id: string }
+    >({
       query: ({ wardId, id }) => ({
         url: `/users/wards/${wardId}/subzones/${id}`,
         method: "DELETE",

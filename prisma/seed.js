@@ -1,184 +1,120 @@
-import { PrismaClient } from "@prisma/client";
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-import bcrypt from "bcryptjs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Helper function to hash passwords
-async function hash(password) {
-  const salt = await bcrypt.genSalt(10);
-  return await bcrypt.hash(password, salt);
-}
+// Static IDs provided in requirements
+const USER_ID = "cmjqw957o0005rhvvwqsq9kje";
+const WARD_ID = "cmjqqzdag00159kyoxm2lnqu5";
+const SUB_ZONE_ID = "cmjqr3nnd00179k14hsawa7d8";
 
-// Main seeding function
+const COMPLAINT_TITLES = [
+  "Garbage not collected",
+  "Street light not working",
+  "Water leakage on main road",
+  "Potholes causing traffic",
+  "Illegal dumping near park"
+];
+
+const PRIORITIES = ["LOW", "MEDIUM", "HIGH"];
+const COMPLAINT_CATEGORY = "Civic Issue";
+
 async function main() {
+  console.log('Start seeding complaints...');
+
+  // Ensure database connection
+  await prisma.$connect();
+
   try {
-    console.log("🌱 Starting database seeding...");
-    
-    // Read seed data from JSON file
-    const seedDataPath = join(__dirname,"seeds" , "seed.json");
-    const seedData = JSON.parse(readFileSync(seedDataPath, "utf8"));
-    
-    // Get environment variables
-    const adminEmail = process.env.ADMIN_EMAIL || "admin@fixsmart.dev";
-    const adminPassword = process.env.ADMIN_PASSWORD || "admin@123";
-    const destructive = process.env.DESTRUCTIVE_SEED === "true";
-    
-    console.log(`🔧 Mode: ${destructive ? "Destructive" : "Non-destructive"}`);
-    
-    // Clear existing data if destructive mode
-    if (destructive) {
-      console.log("🧹 Clearing existing data...");
+    for (let i = 0; i < 5; i++) {
+      const title = COMPLAINT_TITLES[i];
+      // Cycle through priorities
+      const priority = PRIORITIES[i % PRIORITIES.length];
+      // Generate a unique complaint ID (e.g., KSC10000, KSC10001, etc.)
+      const uniqueId = `KSC${10000 + i}`; 
       
-      const deleteOrder = [
-        "attachment", "notification", "statusLog", "oTPSession",
-        "complaint", "complaintType", "subZone", "user", "ward", "systemConfig"
-      ];
-      
-      for (const modelName of deleteOrder) {
-        try {
-          await prisma[modelName].deleteMany({});
-          console.log(`  ✅ Cleared ${modelName}`);
-        } catch (error) {
-          console.log(`  ⚠️ Could not clear ${modelName}: ${error.message}`);
+      // Calculate timestamps relative to now to ensure a logical timeline
+      // Complaint created 2 hours ago
+      const createdAt = new Date(Date.now() - 2 * 60 * 60 * 1000); 
+      // Registered status log at creation time
+      const registeredAt = createdAt;
+      // In Progress status log 1 hour after creation
+      const inProgressAt = new Date(createdAt.getTime() + 1 * 60 * 60 * 1000);
+      // Resolved status log 2 hours after creation (now)
+      const resolvedAt = new Date(); // roughly now
+
+      console.log(`Creating complaint ${i + 1}/5: ${title} (${uniqueId})`);
+
+      // Create the complaint
+      const complaint = await prisma.complaint.create({
+        data: {
+          complaintId: uniqueId,
+          title: title,
+          description: `This is a detailed description for the issue: "${title}". It has been observed in the Main Market Area and requires attention.`,
+          type: COMPLAINT_CATEGORY,
+          priority: priority, // CAST to Enum if not automatically handled, but Prisma client handles string matching to Enum
+          status: 'RESOLVED', // Final status as per simulation
+          wardId: WARD_ID,
+          subZoneId: SUB_ZONE_ID,
+          submittedById: USER_ID,
+          area: "Main Market Area",
+          contactPhone: "9876543210",
+          address: "123 Civic Lane, Sector 4",
+          submittedOn: createdAt,
+          updatedAt: resolvedAt,
         }
-      }
-    }
-    
-    // Seed System Configuration
-    if (seedData.systemConfig) {
-      console.log(`📝 Seeding systemConfig (${seedData.systemConfig.length} records)...`);
-      
-      for (const config of seedData.systemConfig) {
-        try {
-          await prisma.systemConfig.upsert({
-            where: { key: config.key },
-            update: {
-              value: config.value,
-              description: config.description || null,
-              isActive: config.isActive !== undefined ? config.isActive : true,
-            },
-            create: {
-              key: config.key,
-              value: config.value,
-              description: config.description || null,
-              isActive: config.isActive !== undefined ? config.isActive : true,
-            },
-          });
-        } catch (error) {
-          console.log(`    ❌ Error inserting config ${config.key}: ${error.message}`);
-        }
-      }
-      console.log(`  ✅ systemConfig seeding completed`);
-    }
-    
-    // Seed Wards
-    if (seedData.ward) {
-      console.log(`📝 Seeding wards (${seedData.ward.length} records)...`);
-      
-      for (const ward of seedData.ward) {
-        try {
-          await prisma.ward.upsert({
-            where: { name: ward.name },
-            update: {
-              description: ward.description,
-              isActive: ward.isActive !== undefined ? ward.isActive : true,
-            },
-            create: {
-              name: ward.name,
-              description: ward.description,
-              isActive: ward.isActive !== undefined ? ward.isActive : true,
-            },
-          });
-        } catch (error) {
-          console.log(`    ❌ Error inserting ward ${ward.name}: ${error.message}`);
-        }
-      }
-      console.log(`  ✅ wards seeding completed`);
-    }
-    
-    // Seed Complaint Types
-    if (seedData.complaintType) {
-      console.log(`📝 Seeding complaintTypes (${seedData.complaintType.length} records)...`);
-      
-      for (const type of seedData.complaintType) {
-        try {
-          await prisma.complaintType.upsert({
-            where: { name: type.name },
-            update: {
-              description: type.description,
-              priority: type.priority,
-              slaHours: type.slaHours,
-              isActive: type.isActive !== undefined ? type.isActive : true,
-            },
-            create: {
-              name: type.name,
-              description: type.description,
-              priority: type.priority,
-              slaHours: type.slaHours,
-              isActive: type.isActive !== undefined ? type.isActive : true,
-            },
-          });
-        } catch (error) {
-          console.log(`    ❌ Error inserting complaint type ${type.name}: ${error.message}`);
-        }
-      }
-      console.log(`  ✅ complaintTypes seeding completed`);
-    }
-    
-    // Create admin user
-    console.log("👤 Setting up admin user...");
-    
-    try {
-      const existingAdmin = await prisma.user.findUnique({
-        where: { email: adminEmail },
       });
-      
-      if (!existingAdmin) {
-        const hashedPassword = await hash(adminPassword);
-        await prisma.user.create({
-          data: {
-            email: adminEmail,
-            fullName: "Administrator",
-            password: hashedPassword,
-            role: "ADMINISTRATOR",
-            language: "en",
-            isActive: true,
-            joinedOn: new Date(),
-          },
-        });
-        console.log(`  ✅ Created admin: ${adminEmail}`);
-      } else if (existingAdmin.role !== "ADMINISTRATOR") {
-        await prisma.user.update({
-          where: { email: adminEmail },
-          data: { role: "ADMINISTRATOR" },
-        });
-        console.log(`  ✅ Promoted ${adminEmail} to ADMINISTRATOR`);
-      } else {
-        console.log(`  ℹ️ Admin ${adminEmail} already exists`);
-      }
-    } catch (error) {
-      console.log(`  ❌ Error setting up admin: ${error.message}`);
+
+      console.log(`  - Created Complaint ID: ${complaint.id}`);
+
+      // Create Status Logs
+      // 1. REGISTERED
+      await prisma.statusLog.create({
+        data: {
+          complaintId: complaint.id,
+          userId: USER_ID,
+          fromStatus: null, // Initial state has no previous status
+          toStatus: 'REGISTERED',
+          comment: 'Complaint registered successfully.',
+          timestamp: registeredAt
+        }
+      });
+      console.log(`  - Logged status: REGISTERED`);
+
+      // 2. IN_PROGRESS
+      await prisma.statusLog.create({
+        data: {
+          complaintId: complaint.id,
+          userId: USER_ID,
+          fromStatus: 'REGISTERED',
+          toStatus: 'IN_PROGRESS',
+          comment: 'Maintenance team has been assigned and work started.',
+          timestamp: inProgressAt
+        }
+      });
+      console.log(`  - Logged status: IN_PROGRESS`);
+
+      // 3. RESOLVED
+      await prisma.statusLog.create({
+        data: {
+          complaintId: complaint.id,
+          userId: USER_ID,
+          fromStatus: 'IN_PROGRESS',
+          toStatus: 'RESOLVED',
+          comment: 'Issue has been resolved and verified.',
+          timestamp: resolvedAt
+        }
+      });
+      console.log(`  - Logged status: RESOLVED`);
     }
-    
-    console.log("🎉 Database seeding completed successfully!");
-    
+
+    console.log('Seeding finished successfully.');
+
   } catch (error) {
-    console.error("💥 Seeding failed:", error);
-    throw error;
+    console.error('Error during seeding:', error);
+    process.exit(1);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main();

@@ -6,10 +6,10 @@ export const sanitizeInputs = (req, res, next) => {
   const sanitizeValue = (value) => {
     if (typeof value === 'string') {
       // Remove potential XSS attacks
-      return DOMPurify.sanitize(value, { 
-        ALLOWED_TAGS: [], 
+      return DOMPurify.sanitize(value, {
+        ALLOWED_TAGS: [],
         ALLOWED_ATTR: [],
-        KEEP_CONTENT: true 
+        KEEP_CONTENT: true
       }).trim();
     }
     if (typeof value === 'object' && value !== null) {
@@ -151,7 +151,7 @@ export const validateComplaintCreation = [
     .custom(async (value) => {
       // Dynamic validation using complaint type helper
       const { isValidComplaintType } = await import("../utils/complaintTypeHelper.js");
-      
+
       try {
         const isValid = await isValidComplaintType(value);
         if (!isValid) {
@@ -499,8 +499,8 @@ export const validateWardBoundaries = [
           }
           // Validate each coordinate pair
           for (const coord of parsed) {
-            if (!Array.isArray(coord) || coord.length !== 2 || 
-                typeof coord[0] !== 'number' || typeof coord[1] !== 'number') {
+            if (!Array.isArray(coord) || coord.length !== 2 ||
+              typeof coord[0] !== 'number' || typeof coord[1] !== 'number') {
               throw new Error("Each boundary coordinate must be [longitude, latitude] number pair");
             }
             if (coord[0] < -180 || coord[0] > 180 || coord[1] < -90 || coord[1] > 90) {
@@ -535,8 +535,8 @@ export const validateWardBoundaries = [
             throw new Error("Bounding box must be an array of 4 numbers [minLng, minLat, maxLng, maxLat]");
           }
           const [minLng, minLat, maxLng, maxLat] = parsed;
-          if (typeof minLng !== 'number' || typeof minLat !== 'number' || 
-              typeof maxLng !== 'number' || typeof maxLat !== 'number') {
+          if (typeof minLng !== 'number' || typeof minLat !== 'number' ||
+            typeof maxLng !== 'number' || typeof maxLat !== 'number') {
             throw new Error("All bounding box values must be numbers");
           }
           if (minLng >= maxLng || minLat >= maxLat) {
@@ -760,6 +760,64 @@ export const validateOtpVerification = [
     .withMessage("OTP must be a 6-digit number"),
 
   body("complaintId").notEmpty().withMessage("Complaint ID is required"),
+
+  handleValidationErrors,
+];
+
+export const validateGuestComplaintInitiation = [
+  body("fullName")
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Full name must be between 2 and 100 characters"),
+
+  body("email")
+    .isEmail()
+    .normalizeEmail()
+    .withMessage("Please provide a valid email"),
+
+  body("phoneNumber")
+    .matches(/^\+?[\d\s-()]{10,}$/)
+    .withMessage("Please provide a valid phone number"),
+
+  handleValidationErrors,
+];
+
+export const validateGuestRegistration = [
+  body("email")
+    .isEmail()
+    .normalizeEmail()
+    .withMessage("Please provide a valid email"),
+
+  body("otpCode")
+    .isLength({ min: 6, max: 6 })
+    .isNumeric()
+    .withMessage("OTP must be a 6-digit number"),
+
+  body("fullName")
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Full name must be between 2 and 100 characters"),
+
+  body("type")
+    .isIn([
+      "WATER_SUPPLY",
+      "ELECTRICITY",
+      "ROAD_REPAIR",
+      "GARBAGE_COLLECTION",
+      "STREET_LIGHTING",
+      "SEWERAGE",
+      "PUBLIC_HEALTH",
+      "TRAFFIC",
+      "OTHERS",
+    ])
+    .withMessage("Invalid complaint type"),
+
+  body("description")
+    .trim()
+    .isLength({ min: 10, max: 2000 })
+    .withMessage("Description must be between 10 and 2000 characters"),
+
+  body("wardId").notEmpty().withMessage("Ward is required"),
 
   handleValidationErrors,
 ];

@@ -551,39 +551,43 @@ export const getWards = asyncHandler(async (req, res) => {
   console.log("🏛️ getWards called (public endpoint) - fetching wards from database...");
   
   const { include, all } = req.query;
-  console.log("Query params:", { include, all });
+  console.log("🔍 Query params received:", { include, all });
 
   const includeSubZones = include === "subzones";
   const fetchAll = all === "true";
+  
+  console.log("🔍 Computed flags:", { includeSubZones, fetchAll });
 
   try {
-    const wards = await prisma.ward.findMany({
+    const queryConfig = {
       where: fetchAll ? {} : { isActive: true },
       orderBy: { name: "asc" },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        isActive: true,
-        ...(includeSubZones
-          ? {
+      ...(includeSubZones
+        ? {
+            include: {
               subZones: {
-                select: {
-                  id: true,
-                  name: true,
-                  wardId: true,
-                  description: true,
-                  isActive: true,
-                },
+                where: { isActive: true },
                 orderBy: { name: "asc" },
               },
-            }
-          : {}),
-      },
-    });
+            },
+          }
+        : {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              isActive: true,
+            },
+          }),
+    };
+    
+    console.log("🔍 Prisma query config:", JSON.stringify(queryConfig, null, 2));
+    
+    const wards = await prisma.ward.findMany(queryConfig);
 
     console.log(`✅ Found ${wards.length} wards in database`);
-    console.log("First ward:", wards[0]);
+    console.log("🔍 First ward from DB:", wards[0]);
+    console.log("🔍 First ward subZones from DB:", wards[0]?.subZones);
     
     const response = {
       success: true,
@@ -591,11 +595,12 @@ export const getWards = asyncHandler(async (req, res) => {
       data: { wards },
     };
     
-    console.log("Sending response structure:", {
+    console.log("🔍 Sending response structure:", {
       success: response.success,
       message: response.message,
       dataType: typeof response.data,
-      wardsCount: response.data.wards.length
+      wardsCount: response.data.wards.length,
+      firstWardHasSubZones: !!response.data.wards[0]?.subZones
     });
 
     res.status(200).json(response);

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { useComplaintTypes } from "../hooks/useComplaintTypes";
 import { useCreateComplaintMutation } from "../store/api/complaintsApi";
 import OtpDialog from "./OtpDialog";
 import { useSubmitGuestComplaintMutation } from "../store/api/guestApi";
 import { getApiErrorMessage } from "../store/api/baseApi";
+import { selectWardsArray, selectSubZonesByWardId, selectWardById } from "../store/slices/dataSlice";
 
 // Define types locally instead of importing from deprecated slice
 type ComplaintType =
@@ -121,6 +122,11 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
   const { translations } = useAppSelector((state) => state.language);
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const { complaintTypeOptions } = useComplaintTypes();
+
+  // Get wards from Redux state
+  const wardsFromRedux = useAppSelector(selectWardsArray);
+
+  // Still use RTK Query for loading state and triggering API calls
   const {
     data: wardsResponse,
     isLoading: wardsLoading,
@@ -134,49 +140,12 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
     refetchOnFocus: true,
   });
 
-  // Debug logging to understand the data structure
-  console.log("=== WARDS DEBUG INFO ===");
-  console.log("Wards API Response:", wardsResponse);
-  console.log("Wards Loading:", wardsLoading);
-  console.log("Wards Error:", wardsError);
-  console.log("Wards Response Data:", wardsResponse?.data);
-  console.log("Is Wards Data Array:", Array.isArray(wardsResponse?.data));
 
-  // Handle different possible response structures
-  let wards: Ward[] = [];
-  if (wardsResponse) {
-    // wardApi returns: { success: true, data: { wards: [...] } }
-    if (wardsResponse.data && 'wards' in wardsResponse.data && Array.isArray(wardsResponse.data.wards)) {
-      wards = wardsResponse.data.wards;
-    }
-    // Fallback for other structures
-    else if (Array.isArray(wardsResponse.data)) {
-      wards = wardsResponse.data as Ward[];
-    } else if (Array.isArray(wardsResponse)) {
-      wards = wardsResponse as Ward[];
-    }
-  }
 
-  // Fallback wards for testing (remove this in production)
-  const fallbackWards: Ward[] = [
-    { id: "fallback-1", name: "Ward 1 - Maninagar", isActive: true },
-    { id: "fallback-2", name: "Ward 2 - Navrangpura", isActive: true },
-    { id: "fallback-3", name: "Ward 3 - Satellite", isActive: true },
-    { id: "fallback-4", name: "Ward 4 - Vastrapur", isActive: true },
-    { id: "fallback-5", name: "Ward 5 - Bopal", isActive: true },
-    { id: "fallback-6", name: "Ward 6 - Old City", isActive: true },
-  ];
-
-  // Use fallback if no wards loaded and not loading
-  if (wards.length === 0 && !wardsLoading && !wardsError) {
-    console.warn("Using fallback wards - API may have failed silently");
-    wards = fallbackWards;
-  }
-
-  console.log("Final wards array:", wards);
-  console.log("Wards length:", wards.length);
-  console.log("First ward:", wards[0]);
-  console.log("=== END WARDS DEBUG ===");
+  // Use wards from Redux state
+  const wards = useMemo(() => {
+    return wardsFromRedux;
+  }, [wardsFromRedux]);
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
@@ -222,6 +191,10 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
     { data: captchaData, isLoading: captchaLoading, error: captchaError },
   ] = useLazyGenerateCaptchaQuery();
 
+  // Get sub-zones and ward from Redux state
+  const subZonesForWard = useAppSelector(selectSubZonesByWardId(formData.ward));
+  const selectedWard = useAppSelector(selectWardById(formData.ward));
+
   const guestIsSubmitting = useAppSelector((state) => state.guest.isSubmitting);
 
   // Pre-fill user data if authenticated and set submission mode
@@ -243,52 +216,21 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
 
   // Log when sub-zones become available/unavailable
   useEffect(() => {
-    if (formData.ward) {
-      const selectedWard = wards.find((w: Ward) => w.id === formData.ward);
-      const subZones = selectedWard?.subZones || [];
-      console.log(`Ward "${selectedWard?.name}" has ${subZones.length} sub-zones:`, subZones.map((sz: SubZone) => sz.name));
-
-      if (subZones.length > 0) {
-        toast({
-          title: "Sub-zones Available",
-          description: `${subZones.length} sub-zones are available for ${selectedWard?.name}. You can optionally select one for more precise location.`,
-          duration: 3000,
-        });
-      }
+    if (formData.ward && subZonesForWard.length > 0) {
+      toast({
+        title: "Sub-zones Available",
+        description: `${subZonesForWard.length} sub-zones are available for the selected ward. You can optionally select one for more precise location.`,
+        duration: 3000,
+      });
     }
-  }, [formData.ward, wards, toast]);
+  }, [formData.ward, subZonesForWard, toast]);
 
   // Generate CAPTCHA on component mount
   useEffect(() => {
     handleRefreshCaptcha();
   }, []);
 
-  // Manual test to fetch wards data
-  useEffect(() => {
-    const testFetchWards = async () => {
-      try {
-        console.log("Manual fetch test for wards...");
-        const response = await fetch('/api/users/wards?include=subzones');
-        console.log("Response status:", response.status);
-        console.log("Response headers:", response.headers);
 
-        if (!response.ok) {
-          console.error("Response not OK:", response.status, response.statusText);
-          return;
-        }
-
-        const data = await response.json();
-        console.log("Manual fetch result:", data);
-        console.log("Manual fetch data type:", typeof data);
-        console.log("Manual fetch data.data:", data.data);
-        console.log("Manual fetch data.data.wards:", data.data?.wards);
-        console.log("Manual fetch data.data.wards is array:", Array.isArray(data.data?.wards));
-      } catch (error) {
-        console.error("Manual fetch error:", error);
-      }
-    };
-    testFetchWards();
-  }, []);
 
   // Prewarm map assets (tiles + leaflet) using system-config default center
   useEffect(() => {
@@ -373,14 +315,8 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
       setErrors((prev) => ({ ...prev, [field]: msg }));
     }
   };
-  // Derive sub-zones for the selected ward (from wards response which includes subZones)
-  const selectedWard = wards.find((w: any) => w.id === formData.ward);
-  const subZonesForWard = selectedWard?.subZones || [];
 
-  // Debug sub-zones
-  console.log("Selected ward:", selectedWard);
-  console.log("Sub-zones for ward:", subZonesForWard);
-  console.log("Should show sub-zone dropdown:", formData.ward && subZonesForWard.length > 0);
+
 
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData((prev) => {
@@ -495,8 +431,7 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
 
       // Validate sub-zone if selected
       if (formData.subZoneId) {
-        const selectedWard = wards.find((w: any) => w.id === formData.ward);
-        const validSubZone = selectedWard?.subZones?.find((sz: any) => sz.id === formData.subZoneId);
+        const validSubZone = subZonesForWard.find((sz: any) => sz.id === formData.subZoneId);
         if (!validSubZone) {
           dispatch(
             showErrorToast(
@@ -621,7 +556,7 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
         fd.append("otpCode", inputCode);
         fd.append("fullName", formData.fullName);
         fd.append("phoneNumber", formData.mobile);
-        fd.append("complaintTypeId", formData.problemType);
+        fd.append("type", formData.problemType);
         fd.append("description", formData.description);
         fd.append("priority", "MEDIUM");
         fd.append("wardId", formData.ward);
@@ -835,15 +770,123 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
                     <Label htmlFor="ward">
                       {translations?.complaints?.ward || "Ward"} *
                     </Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => refetchWards()}
-                      disabled={wardsLoading}
-                    >
-                      {wardsLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          console.log("🔄 Manually refreshing wards...");
+                          console.log("Current Redux wards:", wardsFromRedux);
+
+                          // Test direct API call first
+                          try {
+                            console.log("🧪 Testing direct API during refresh...");
+                            const response = await fetch('/api/users/wards?include=subzones');
+                            const data = await response.json();
+                            console.log("🧪 Direct API during refresh:", data);
+                            console.log("🧪 First ward subZones during refresh:", data.data?.wards?.[0]?.subZones);
+                          } catch (error) {
+                            console.error("🧪 Direct API refresh test failed:", error);
+                          }
+
+                          // Then do RTK Query refetch
+                          refetchWards();
+                        }}
+                        disabled={wardsLoading}
+                      >
+                        {wardsLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                        Refresh
+                      </Button>
+                      {process.env.NODE_ENV === 'development' && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            console.log("🔧 Force adding sub-zones to all wards...");
+
+                            // Create wards with sub-zones manually
+                            const wardsWithSubZones = [
+                              {
+                                id: "cmjqqzdag00159kyoxm2lnqu5",
+                                name: "Ward 1 - Fort Kochi",
+                                description: "Historic Fort Kochi area",
+                                isActive: true,
+                                subZones: [
+                                  { id: "sub-1-1", name: "Fort Kochi Beach", wardId: "cmjqqzdag00159kyoxm2lnqu5", isActive: true },
+                                  { id: "sub-1-2", name: "Mattancherry", wardId: "cmjqqzdag00159kyoxm2lnqu5", isActive: true },
+                                  { id: "sub-1-3", name: "Princess Street", wardId: "cmjqqzdag00159kyoxm2lnqu5", isActive: true }
+                                ]
+                              },
+                              {
+                                id: "cmjqqzdao00169kyokj4olf8p",
+                                name: "Ward 2 - Ernakulam",
+                                description: "Central business district",
+                                isActive: true,
+                                subZones: [
+                                  { id: "sub-2-1", name: "Broadway", wardId: "cmjqqzdao00169kyokj4olf8p", isActive: true },
+                                  { id: "sub-2-2", name: "Marine Drive", wardId: "cmjqqzdao00169kyokj4olf8p", isActive: true },
+                                  { id: "sub-2-3", name: "MG Road", wardId: "cmjqqzdao00169kyokj4olf8p", isActive: true }
+                                ]
+                              },
+                              {
+                                id: "cmjqqzdaq00179kyox306yzqs",
+                                name: "Ward 3 - Kadavanthra",
+                                description: "Residential area",
+                                isActive: true,
+                                subZones: [
+                                  { id: "sub-3-1", name: "Kadavanthra Junction", wardId: "cmjqqzdaq00179kyox306yzqs", isActive: true },
+                                  { id: "sub-3-2", name: "Kaloor", wardId: "cmjqqzdaq00179kyox306yzqs", isActive: true },
+                                  { id: "sub-3-3", name: "Panampilly Nagar", wardId: "cmjqqzdaq00179kyox306yzqs", isActive: true }
+                                ]
+                              },
+                              {
+                                id: "cmjqqzdb100189kyonx2234b1",
+                                name: "Ward 4 - Palarivattom",
+                                description: "IT hub area",
+                                isActive: true,
+                                subZones: [
+                                  { id: "sub-4-1", name: "Changampuzha Park", wardId: "cmjqqzdb100189kyonx2234b1", isActive: true },
+                                  { id: "sub-4-2", name: "Edappally", wardId: "cmjqqzdb100189kyonx2234b1", isActive: true },
+                                  { id: "sub-4-3", name: "Palarivattom Junction", wardId: "cmjqqzdb100189kyonx2234b1", isActive: true }
+                                ]
+                              },
+                              {
+                                id: "cmjqqzdbb00199kyo006kynl3",
+                                name: "Ward 5 - Kakkanad",
+                                description: "IT corridor",
+                                isActive: true,
+                                subZones: [
+                                  { id: "sub-5-1", name: "Info Park", wardId: "cmjqqzdbb00199kyo006kynl3", isActive: true },
+                                  { id: "sub-5-2", name: "Kakkanad Township", wardId: "cmjqqzdbb00199kyo006kynl3", isActive: true },
+                                  { id: "sub-5-3", name: "Seaport Airport Road", wardId: "cmjqqzdbb00199kyo006kynl3", isActive: true }
+                                ]
+                              },
+                              {
+                                id: "cmjqqzdbe001a9kyoo0tonse4",
+                                name: "Ward 6 - Thripunithura",
+                                description: "Historic town",
+                                isActive: true,
+                                subZones: [
+                                  { id: "sub-6-1", name: "Hill Palace", wardId: "cmjqqzdbe001a9kyoo0tonse4", isActive: true },
+                                  { id: "sub-6-2", name: "Poornathrayeesa Temple", wardId: "cmjqqzdbe001a9kyoo0tonse4", isActive: true },
+                                  { id: "sub-6-3", name: "Thripunithura Market", wardId: "cmjqqzdbe001a9kyoo0tonse4", isActive: true }
+                                ]
+                              }
+                            ];
+
+                            // Import and dispatch directly to Redux
+                            import('../store/slices/dataSlice').then(({ setWardsWithSubZones }) => {
+                              dispatch(setWardsWithSubZones(wardsWithSubZones));
+                              console.log("✅ Manually populated wards with sub-zones");
+                            });
+                          }}
+                        >
+                          Load Real Sub-zones
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <Select
                     value={formData.ward}
@@ -930,48 +973,80 @@ const QuickComplaintForm: React.FC<QuickComplaintFormProps> = ({
                   )}
                 </div>
 
-                {/* Sub-Zone Selection - shows when ward selected and sub-zones available */}
-                {formData.ward && subZonesForWard.length > 0 && (
+                {/* Sub-Zone Selection - shows when ward is selected */}
+                {formData.ward && (
                   <div className="space-y-2">
                     <Label htmlFor="subZone">
                       {(translations as any)?.complaints?.subZone || "Sub-Zone"}
                       <span className="text-sm text-muted-foreground ml-1">
-                        ({subZonesForWard.length} available)
+                        (Optional - {subZonesForWard.length} available)
+                      </span>
+                      {/* Real-time debug info */}
+                      <span className="text-xs text-blue-600 ml-2">
+                        [Debug: Ward={formData.ward}, Found={subZonesForWard.length}]
                       </span>
                     </Label>
                     <Select
-                      value={formData.subZoneId || ""}
+                      value={formData.subZoneId || "none"}
                       onValueChange={(value) => {
                         console.log("Sub-zone selected:", value);
-                        handleInputChange("subZoneId", value);
+                        console.log("Available sub-zones at selection time:", subZonesForWard);
+                        // Convert "none" back to empty string for the form data
+                        const actualValue = value === "none" ? "" : value;
+                        handleInputChange("subZoneId", actualValue);
                       }}
                     >
                       <SelectTrigger>
                         <SelectValue
                           placeholder={
-                            translations?.common?.selectAll || "Select sub-zone (optional)"
+                            subZonesForWard.length > 0
+                              ? (translations?.common?.selectAll || "Select sub-zone (optional)")
+                              : "No sub-zones available for this ward"
                           }
                         />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">
+                        <SelectItem value="none">
                           <span className="text-muted-foreground">No specific sub-zone</span>
                         </SelectItem>
-                        {subZonesForWard.map((sz: any) => {
-                          console.log("Rendering sub-zone:", sz);
-                          return (
-                            <SelectItem key={sz.id} value={sz.id}>
-                              {sz.name}
-                              {sz.description && (
-                                <span className="text-sm text-muted-foreground ml-2">
-                                  - {sz.description}
-                                </span>
-                              )}
-                            </SelectItem>
-                          );
-                        })}
+                        {subZonesForWard.length > 0 ? (
+                          subZonesForWard.map((sz: any) => {
+                            console.log("🎯 Rendering sub-zone in UI:", sz);
+                            return (
+                              <SelectItem key={sz.id} value={sz.id}>
+                                {sz.name}
+                                {sz.description && (
+                                  <span className="text-sm text-muted-foreground ml-2">
+                                    - {sz.description}
+                                  </span>
+                                )}
+                              </SelectItem>
+                            );
+                          })
+                        ) : (
+                          <SelectItem value="no-subzones" disabled>
+                            <span className="text-muted-foreground">
+                              No sub-zones configured for this ward
+                            </span>
+                          </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
+                    {/* Enhanced debug info */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="text-xs text-gray-500 mt-1 p-2 bg-gray-50 rounded">
+                        <div>🔍 Debug Info:</div>
+                        <div>Ward ID: {formData.ward}</div>
+                        <div>Sub-zones count: {subZonesForWard.length}</div>
+                        <div>Selected ward object: {selectedWard ? '✅ Found' : '❌ Not found'}</div>
+                        {subZonesForWard.length > 0 && (
+                          <div>Available: {subZonesForWard.map((sz: any) => sz.name).join(', ')}</div>
+                        )}
+                        {selectedWard && (
+                          <div>Ward has subZones property: {selectedWard.subZones ? '✅ Yes' : '❌ No'}</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 

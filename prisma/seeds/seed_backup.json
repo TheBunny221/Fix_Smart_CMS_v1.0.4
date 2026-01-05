@@ -1,382 +1,366 @@
 {
-    "config-of": "kochi-city",
+    "config-of": "generic-saas-template",
+    "deployment-notes": "This is a generic template for SaaS deployment. Customize the values below for your specific city/region before deployment.",
     "systemConfig": [
         {
             "key": "APP_NAME",
-            "value": "NLC-CMS",
+            "value": "AMC CMS",
             "description": "Application name",
-            "isActive": true
+            "isActive": true,
+            "type": "application"
         },
         {
             "key": "APP_LOGO_URL",
             "value": "/logo.png",
-            "description": "URL for the application logo",
-            "isActive": true
+            "description": "URL for the application logo - replace with your organization's logo",
+            "isActive": true,
+            "type": "application"
         },
         {
             "key": "APP_LOGO_SIZE",
-            "value": "medium",
+            "value": "large",
             "description": "Size of the application logo (small, medium, large)",
-            "isActive": true
+            "isActive": true,
+            "type": "application"
         },
         {
             "key": "COMPLAINT_ID_PREFIX",
-            "value": "KMC",
+            "value": "AMC",
             "description": "Prefix for complaint IDs",
-            "isActive": true
+            "isActive": true,
+            "type": "complaint"
         },
         {
             "key": "COMPLAINT_ID_START_NUMBER",
             "value": "1",
             "description": "Starting number for complaint ID sequence",
-            "isActive": true
+            "isActive": true,
+            "type": "complaint"
         },
         {
             "key": "COMPLAINT_ID_LENGTH",
             "value": "5",
             "description": "Length of the numeric part in complaint IDs",
-            "isActive": true
+            "isActive": true,
+            "type": "complaint"
         },
         {
             "key": "OTP_EXPIRY_MINUTES",
             "value": "5",
             "description": "OTP expiration time in minutes",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "MAX_FILE_SIZE_MB",
             "value": "10",
             "description": "Maximum file upload size in MB",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "DEFAULT_SLA_HOURS",
             "value": "48",
             "description": "Default SLA time in hours",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "ADMIN_EMAIL",
-            "value": "admin@cochinsmartcity.in",
+            "value": "admin@ahmedabadcity.gov.in",
             "description": "Administrator email address",
-            "isActive": true
+            "isActive": true,
+            "type": "administration"
         },
         {
             "key": "NOTIFICATION_SETTINGS",
             "value": "{\"email\":true,\"sms\":false}",
             "description": "Notification preferences",
-            "isActive": true
+            "isActive": true,
+            "type": "notification"
         },
         {
             "key": "AUTO_ASSIGN_COMPLAINTS",
             "value": "true",
             "description": "Automatically assign complaints to ward officers",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "CITIZEN_REGISTRATION_ENABLED",
             "value": "true",
             "description": "Allow citizen self-registration",
-            "isActive": true
+            "isActive": true,
+            "type": "citizen"
         },
         {
             "key": "COMPLAINT_PRIORITIES",
             "value": "[\"LOW\",\"MEDIUM\",\"HIGH\",\"CRITICAL\"]",
             "description": "Available complaint priorities",
-            "isActive": true
+            "isActive": true,
+            "type": "complaint"
         },
         {
             "key": "COMPLAINT_STATUSES",
             "value": "[\"REGISTERED\",\"ASSIGNED\",\"IN_PROGRESS\",\"RESOLVED\",\"CLOSED\",\"REOPENED\"]",
             "description": "Available complaint statuses",
-            "isActive": true
+            "isActive": true,
+            "type": "complaint"
         },
         {
             "key": "MAP_SEARCH_PLACE",
-            "value": "Kochi, Kerala, India",
+            "value": "Ahmedabad, Gujarat, India",
             "description": "Place context appended to searches",
-            "isActive": true
+            "isActive": true,
+            "type": "mapping"
         },
         {
             "key": "MAP_COUNTRY_CODES",
             "value": "in",
             "description": "ISO2 country codes for Nominatim bias (comma-separated)",
-            "isActive": true
+            "isActive": true,
+            "type": "mapping"
         },
         {
             "key": "MAP_DEFAULT_LAT",
-            "value": "9.9312",
+            "value": "23.0225",
             "description": "Default map center latitude",
-            "isActive": true
+            "isActive": true,
+            "type": "mapping"
         },
         {
             "key": "MAP_DEFAULT_LNG",
-            "value": "76.2673",
+            "value": "72.5714",
             "description": "Default map center longitude",
-            "isActive": true
-        },
-        {
-            "key": "MAP_BBOX_NORTH",
-            "value": "10.10",
-            "description": "North latitude of bounding box",
-            "isActive": true
-        },
-        {
-            "key": "MAP_BBOX_SOUTH",
-            "value": "9.80",
-            "description": "South latitude of bounding box",
-            "isActive": true
-        },
-        {
-            "key": "MAP_BBOX_EAST",
-            "value": "76.40",
-            "description": "East longitude of bounding box",
-            "isActive": true
-        },
-        {
-            "key": "MAP_BBOX_WEST",
-            "value": "76.15",
-            "description": "West longitude of bounding box",
-            "isActive": true
+            "isActive": true,
+            "type": "mapping"
         },
         {
             "key": "CONTACT_HELPLINE",
-            "value": "+91-484-2206410",
+            "value": "+91-79-2658-4801",
             "description": "Helpline phone number for citizen support",
-            "isActive": true
+            "isActive": true,
+            "type": "contact"
         },
         {
             "key": "CONTACT_EMAIL",
-            "value": "support@cochinsmartcity.in",
+            "value": "support@ahmedabadcity.gov.in",
             "description": "Official support email address",
-            "isActive": true
+            "isActive": true,
+            "type": "contact"
         },
         {
             "key": "CONTACT_OFFICE_HOURS",
             "value": "Monday to Friday: 9:00 AM - 5:00 PM",
             "description": "Official office hours for citizen services",
-            "isActive": true
+            "isActive": true,
+            "type": "contact"
         },
         {
             "key": "CONTACT_OFFICE_ADDRESS",
-            "value": "Kochi Corporation Office, Ernakulam, Kochi - 682011, Kerala, India",
+            "value": "Ahmedabad Municipal Corporation, Dr. Jivraj Mehta Bhavan, Usmanpura, Ahmedabad - 380013, Gujarat, India",
             "description": "Official office address",
-            "isActive": true
+            "isActive": true,
+            "type": "contact"
         },
         {
             "key": "SYSTEM_VERSION",
             "value": "1.0.0",
             "description": "Current system version",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "MAINTENANCE_MODE",
             "value": "false",
             "description": "System maintenance mode status",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "GUEST_COMPLAINT_ENABLED",
             "value": "true",
             "description": "Allow guest users to submit complaints",
-            "isActive": true
+            "isActive": true,
+            "type": "guest"
         },
         {
             "key": "EMAIL_NOTIFICATIONS_ENABLED",
             "value": "true",
             "description": "Enable email notifications for complaints",
-            "isActive": true
+            "isActive": true,
+            "type": "notification"
         },
         {
             "key": "SMS_NOTIFICATIONS_ENABLED",
             "value": "false",
             "description": "Enable SMS notifications for complaints",
-            "isActive": true
+            "isActive": true,
+            "type": "notification"
         },
         {
             "key": "COMPLAINT_PHOTO_MAX_SIZE",
             "value": "5",
             "description": "Maximum photo size in MB for complaints",
-            "isActive": true
+            "isActive": true,
+            "type": "complaint"
         },
         {
             "key": "COMPLAINT_PHOTO_MAX_COUNT",
             "value": "5",
             "description": "Maximum number of photos per complaint",
-            "isActive": true
+            "isActive": true,
+            "type": "complaint"
         },
         {
             "key": "AUTO_CLOSE_RESOLVED_COMPLAINTS",
             "value": "true",
             "description": "Automatically close resolved complaints after specified days",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "AUTO_CLOSE_DAYS",
             "value": "7",
             "description": "Number of days after which resolved complaints are auto-closed",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         },
         {
             "key": "CITIZEN_DAILY_COMPLAINT_LIMIT",
             "value": "5",
             "description": "Maximum number of complaints a citizen can submit per day",
-            "isActive": true
+            "isActive": true,
+            "type": "citizen"
         },
         {
             "key": "CITIZEN_DAILY_COMPLAINT_LIMIT_ENABLED",
             "value": "true",
             "description": "Enable or disable daily complaint limit enforcement for citizens",
-            "isActive": true
+            "isActive": true,
+            "type": "citizen"
         },
         {
             "key": "SERVICE_AREA_BOUNDARY",
-            "value": "{\"type\":\"Polygon\",\"coordinates\":[[[76.15,9.80],[76.40,9.80],[76.40,10.10],[76.15,10.10],[76.15,9.80]]]}",
+            "value": "{\"type\":\"Polygon\",\"coordinates\":[[[72.4500,22.9500],[72.7000,22.9500],[72.7000,23.1500],[72.4500,23.1500],[72.4500,22.9500]]]}",
             "description": "GeoJSON polygon defining the service area boundary for complaint submissions",
-            "isActive": true
+            "isActive": true,
+            "type": "geolocation"
         },
         {
             "key": "SERVICE_AREA_VALIDATION_ENABLED",
             "value": "true",
             "description": "Enable or disable location-based validation for complaint submissions",
-            "isActive": true
+            "isActive": true,
+            "type": "geolocation"
         },
         {
             "key": "AUTO_ASSIGN_ON_REOPEN",
             "value": "false",
             "description": "If enabled, the system automatically assigns a complaint after reopening. Default should be false.",
-            "isActive": true
+            "isActive": true,
+            "type": "system"
         }
     ],
     "ward": [
         {
-            "name": "Ward 1 - Fort Kochi",
-            "description": "Historic Fort Kochi area including Chinese fishing nets and heritage sites",
+            "name": "Ward 1 - Maninagar",
+            "description": "Maninagar area including residential and commercial zones",
             "isActive": true,
             "subZones": [
                 {
-                    "name": "Fort Kochi Beach",
-                    "description": "Coastal area with beach and tourist attractions",
+                    "name": "Maninagar East",
+                    "description": "Eastern part of Maninagar",
                     "isActive": true
                 },
                 {
-                    "name": "Mattancherry",
-                    "description": "Historic spice trading area with Dutch Palace",
-                    "isActive": true
-                },
-                {
-                    "name": "Princess Street",
-                    "description": "Main commercial street in Fort Kochi",
+                    "name": "Maninagar West",
+                    "description": "Western part of Maninagar",
                     "isActive": true
                 }
             ]
         },
         {
-            "name": "Ward 2 - Ernakulam",
-            "description": "Central business district and commercial hub",
+            "name": "Ward 2 - Navrangpura",
+            "description": "Navrangpura commercial and residential area",
             "isActive": true,
             "subZones": [
                 {
-                    "name": "MG Road",
-                    "description": "Main shopping and commercial street",
+                    "name": "Navrangpura Central",
+                    "description": "Central Navrangpura area",
                     "isActive": true
                 },
                 {
-                    "name": "Marine Drive",
-                    "description": "Waterfront promenade and business area",
-                    "isActive": true
-                },
-                {
-                    "name": "Broadway",
-                    "description": "Commercial market area",
+                    "name": "University Area",
+                    "description": "Gujarat University vicinity",
                     "isActive": true
                 }
             ]
         },
         {
-            "name": "Ward 3 - Kadavanthra",
-            "description": "Residential area with shopping complexes",
+            "name": "Ward 3 - Satellite",
+            "description": "Satellite area with modern residential complexes",
             "isActive": true,
             "subZones": [
                 {
-                    "name": "Kadavanthra Junction",
-                    "description": "Main junction and commercial area",
+                    "name": "Satellite Road",
+                    "description": "Main Satellite Road area",
                     "isActive": true
                 },
                 {
-                    "name": "Panampilly Nagar",
-                    "description": "Upscale residential neighborhood",
-                    "isActive": true
-                },
-                {
-                    "name": "Kaloor",
-                    "description": "Mixed residential and commercial area",
+                    "name": "Prahlad Nagar",
+                    "description": "Prahlad Nagar residential area",
                     "isActive": true
                 }
             ]
         },
         {
-            "name": "Ward 4 - Palarivattom",
-            "description": "IT hub and modern residential area",
+            "name": "Ward 4 - Vastrapur",
+            "description": "Vastrapur IT and residential hub",
             "isActive": true,
             "subZones": [
                 {
-                    "name": "Palarivattom Junction",
-                    "description": "Major transportation hub",
+                    "name": "Vastrapur Lake Area",
+                    "description": "Area around Vastrapur Lake",
                     "isActive": true
                 },
                 {
-                    "name": "Edappally",
-                    "description": "Commercial and residential area",
-                    "isActive": true
-                },
-                {
-                    "name": "Changampuzha Park",
-                    "description": "Park area and surrounding residential zone",
+                    "name": "Science City Road",
+                    "description": "Science City Road commercial area",
                     "isActive": true
                 }
             ]
         },
         {
-            "name": "Ward 5 - Kakkanad",
-            "description": "IT corridor and modern township",
+            "name": "Ward 5 - Bopal",
+            "description": "Bopal emerging residential and IT area",
             "isActive": true,
             "subZones": [
                 {
-                    "name": "Info Park",
-                    "description": "IT park and tech companies area",
+                    "name": "Bopal Ambli Road",
+                    "description": "Bopal Ambli Road area",
                     "isActive": true
                 },
                 {
-                    "name": "Seaport Airport Road",
-                    "description": "Main arterial road with commercial establishments",
-                    "isActive": true
-                },
-                {
-                    "name": "Kakkanad Township",
-                    "description": "Residential township area",
+                    "name": "Shilaj",
+                    "description": "Shilaj residential area",
                     "isActive": true
                 }
             ]
         },
         {
-            "name": "Ward 6 - Thripunithura",
-            "description": "Historic town with cultural heritage",
+            "name": "Ward 6 - Old City",
+            "description": "Historic old city area with heritage sites",
             "isActive": true,
             "subZones": [
                 {
-                    "name": "Hill Palace",
-                    "description": "Area around the historic Hill Palace Museum",
+                    "name": "Bhadra Fort Area",
+                    "description": "Historic Bhadra Fort vicinity",
                     "isActive": true
                 },
                 {
-                    "name": "Thripunithura Market",
+                    "name": "Manek Chowk",
                     "description": "Traditional market area",
-                    "isActive": true
-                },
-                {
-                    "name": "Poornathrayeesa Temple",
-                    "description": "Temple area and surrounding residential zone",
                     "isActive": true
                 }
             ]
@@ -391,15 +375,15 @@
             "isActive": true
         },
         {
-            "name": "Electricity", 
-            "description": "Power outages and electrical issues",
+            "name": "Electricity",
+            "description": "Power outages and electrical infrastructure",
             "priority": "HIGH",
             "slaHours": 12,
             "isActive": true
         },
         {
             "name": "Road Repair",
-            "description": "Damaged roads and potholes",
+            "description": "Damaged roads, potholes, and road maintenance",
             "priority": "MEDIUM",
             "slaHours": 72,
             "isActive": true
@@ -420,17 +404,35 @@
         },
         {
             "name": "Drainage",
-            "description": "Blocked drains and waterlogging",
+            "description": "Blocked drains and waterlogging issues",
             "priority": "HIGH",
             "slaHours": 24,
             "isActive": true
         },
         {
-            "name": "Traffic Management",
-            "description": "Traffic signals and road safety issues",
+            "name": "Air Pollution",
+            "description": "Air quality and pollution control issues",
             "priority": "MEDIUM",
-            "slaHours": 36,
+            "slaHours": 48,
+            "isActive": true
+        },
+        {
+            "name": "Noise Pollution",
+            "description": "Noise pollution complaints",
+            "priority": "LOW",
+            "slaHours": 72,
             "isActive": true
         }
-    ]
+    ],
+    "migration-info": {
+        "last-canonical-migration": "2025-10-29T19:01:19.009Z",
+        "canonical-keys-applied": true,
+        "deprecated-keys": [],
+        "notes": "All configuration keys have been reviewed and canonicalized. Environment variable duplicates removed.",
+        "migration-actions": [
+            "Added type categorization to all SystemConfig entries",
+            "Removed APP_NAME and CONTACT_EMAIL from environment files",
+            "Ensured SystemConfig is the single source of truth for application configuration"
+        ]
+    }
 }

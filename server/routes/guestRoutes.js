@@ -24,6 +24,8 @@ import {
   validateOtpVerification,
   validateComplaintTracking,
   validateGuestComplaint,
+  validateGuestComplaintInitiation,
+  validateGuestRegistration,
   validateOtpRequest,
   sanitizeInputs
 } from "../middleware/validation.js";
@@ -306,7 +308,7 @@ const upload = multer({
  *       415:
  *         description: Unsupported file type
  */
-router.post("/complaint", upload.array("attachments", 5), sanitizeInputs, validateGuestComplaint, submitGuestComplaint);
+router.post("/complaint", upload.array("attachments", 5), sanitizeInputs, validateGuestComplaintInitiation, submitGuestComplaint);
 /**
  * @swagger
  * /api/guest/complaint-with-attachments:
@@ -375,7 +377,7 @@ router.post(
   guestOtpLimiter,
   upload.array("attachments", 5),
   sanitizeInputs,
-  validateOtpVerification,
+  validateGuestRegistration,
   verifyOTPAndRegister,
 );
 

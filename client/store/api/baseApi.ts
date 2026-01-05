@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type {
   BaseQueryFn,
   FetchArgs,
@@ -30,263 +30,97 @@ if (process.env.NODE_ENV === "development") {
 
 // Note: Using completely custom fetch implementation below to avoid RTK Query response body conflicts
 
-// Completely custom base query to avoid all RTK Query response body conflicts
+// Use standard fetchBaseQuery for reliability
+const baseQuery = fetchBaseQuery({
+  baseUrl: "/api",
+  prepareHeaders: (headers, { getState }) => {
+    const state = getState() as any;
+    const token = state?.auth?.token || localStorage.getItem("token");
+
+    if (token) {
+      headers.set("authorization", `Bearer ${token}`);
+    }
+
+    return headers;
+  },
+  timeout: 15000,
+});
+
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  // Build URL and options
-  const url = typeof args === "string" ? args : args.url;
+  let result = await baseQuery(args, api, extraOptions);
 
-  let body: string | FormData | undefined = undefined;
-  let contentType = "application/json";
+  // Handle 401 errors
+  if (result.error && result.error.status === 401) {
+    const url = typeof args === "string" ? args : args.url;
+    const isAuthEndpoint =
+      url.includes("auth/login") || url.includes("auth/register");
 
-  // Handle different body types with comprehensive logic
-  if (
-    typeof args !== "string" &&
-    args.body !== undefined &&
-    args.body !== null
-  ) {
-    // Check for FormData first (most specific)
-    if (args.body instanceof FormData) {
-      body = args.body;
-      contentType = ""; // Let browser set multipart/form-data boundary
-    }
-    // Check if it's already a JSON string
-    else if (typeof args.body === "string") {
-      // Check if it looks like JSON or if it's already serialized
-      if (
-        args.body.startsWith("{") ||
-        args.body.startsWith("[") ||
-        args.body === "null"
-      ) {
-        body = args.body; // Already JSON
-      } else {
-        // Non-JSON string, wrap it
-        body = JSON.stringify(args.body);
-      }
-    }
-    // Handle all object types (including arrays, dates, etc.)
-    else if (typeof args.body === "object") {
-      // Safety check for circular references and ensure it's serializable
-      try {
-        // Deep clone to avoid any reference issues and ensure clean serialization
-        const cleanBody = JSON.parse(JSON.stringify(args.body));
-        body = JSON.stringify(cleanBody);
-      } catch (error) {
-        // Fallback for objects that can't be serialized
-        console.warn("Failed to serialize request body:", error);
-        body = JSON.stringify({ error: "Failed to serialize request data" });
-      }
-    }
-    // Handle primitives (numbers, booleans)
-    else {
-      body = JSON.stringify(args.body);
-    }
-  }
-
-  // Build request options carefully with timeout
-  const baseOptions: RequestInit = {
-    method: typeof args === "string" ? "GET" : args.method || "GET",
-    headers: typeof args === "string" ? {} : (args.headers as HeadersInit) || {},
-    signal: AbortSignal.timeout(15000), // 15 second timeout
-  };
-
-  // Only add body for methods that support it
-  const methodsWithBody = ["POST", "PUT", "PATCH", "DELETE"];
-  if (
-    body !== undefined &&
-    methodsWithBody.includes(baseOptions.method!.toUpperCase())
-  ) {
-    baseOptions.body = body;
-  }
-
-  const options: RequestInit = baseOptions;
-
-  // Set headers: always set content-type for JSON; add authorization if token exists
-  try {
-    const state = api.getState() as any;
-    const token = state?.auth?.token || localStorage.getItem("token");
-
-    const headers: Record<string, string> = {
-      ...(options.headers as Record<string, string>),
-    };
-
-    // Only add content-type for JSON requests (not FormData)
-    if (contentType && !("content-type" in headers)) {
-      headers["content-type"] = contentType;
-    }
-
-    if (token) {
-      headers["authorization"] = `Bearer ${token}`;
-    }
-
-    options.headers = headers;
-  } catch (error) {
-    const token = localStorage.getItem("token");
-
-    const headers: Record<string, string> = {
-      ...(options.headers as Record<string, string>),
-    };
-
-    // Only add content-type for JSON requests (not FormData)
-    if (contentType && !("content-type" in headers)) {
-      headers["content-type"] = contentType;
-    }
-
-    if (token) {
-      headers["authorization"] = `Bearer ${token}`;
-    }
-
-    options.headers = headers;
-  }
-
-  try {
-    // Use robust fetch that handles third-party overrides
-    const robustFetch = createRobustFetch();
-
-    const response = await robustFetch(
-      `/api${url.startsWith("/") ? "" : "/"}${url}`,
-      options,
-    );
-
-    // Handle 401 errors before parsing response
-    if (response.status === 401) {
-      const isAuthEndpoint =
-        url.includes("auth/login") || url.includes("auth/register");
-      if (!isAuthEndpoint) {
-        localStorage.removeItem("token");
-        setTimeout(() => {
-          try {
-            api.dispatch(logout());
-          } catch (err) {
-            console.warn("Error dispatching logout:", err);
-          }
-        }, 0);
-      }
-    }
-
-    // Parse response only once
-    let data: any;
-    try {
-      const text = await response.text();
-      data = text ? JSON.parse(text) : null;
-    } catch (parseError) {
-      data = null;
-    }
-
-    // Normalize standardized API shape: if success === false, treat as error
-    if (response.ok) {
-      if (data && typeof data === "object" && "success" in data) {
-        if (data.success === false) {
-          const errorObj: FetchBaseQueryError = {
-            status: response.status,
-            data,
-          } as any;
-          try {
-            const { toast } = await import("../../hooks/use-toast");
-            const { getFriendlyApiMessage } = await import(
-              "../../lib/apiHandler"
-            );
-            const msg = getFriendlyApiMessage({
-              status: response.status,
-              data,
-            });
-            toast({
-              title: "Request failed",
-              description: msg,
-              variant: "destructive",
-            });
-          } catch {}
-          return { error: errorObj };
+    if (!isAuthEndpoint) {
+      localStorage.removeItem("token");
+      setTimeout(() => {
+        try {
+          api.dispatch(logout());
+        } catch (err) {
+          console.warn("Error dispatching logout:", err);
         }
-      }
-      return { data };
-    } else {
-      const errorObj: FetchBaseQueryError = {
-        status: response.status,
-        data: data,
-      } as any;
-      try {
-        const { toast } = await import("../../hooks/use-toast");
-        const { getFriendlyApiMessage } = await import("../../lib/apiHandler");
-        const msg = getFriendlyApiMessage(errorObj);
-        toast({
-          title: "Request failed",
-          description: msg,
-          variant: "destructive",
-        });
-      } catch {}
-      return {
-        error: errorObj,
-      };
+      }, 0);
     }
-  } catch (error) {
-    // Enhanced error detection for network issues and third-party overrides
-    const errorMessage = String(error);
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    let errorType = "FETCH_ERROR";
-    let userMessage =
-      "Network connection failed. Please check your internet connection.";
-
-    // Check for specific third-party library interference
-    const isFullStoryError =
-      errorStack?.includes("fs.js") || errorStack?.includes("fullstory");
-    const isThirdPartyFetchOverride =
-      errorMessage.includes("window.fetch") || isFullStoryError;
-
-    if (error instanceof DOMException && error.name === "AbortError") {
-      errorType = "TIMEOUT_ERROR";
-      userMessage = "Request timed out. Please try again.";
-    } else if (errorMessage.includes("Failed to fetch")) {
-      errorType = "NETWORK_ERROR";
-      if (isThirdPartyFetchOverride) {
-        userMessage =
-          "Network request intercepted by tracking library. Retrying...";
-      } else {
-        userMessage =
-          "Cannot connect to the server. Please check your internet connection and try again.";
-      }
-    } else if (
-      errorMessage.includes("timeout") ||
-      errorMessage.includes("TIMEOUT")
-    ) {
-      errorType = "TIMEOUT_ERROR";
-      userMessage = "Request timed out. Please try again.";
-    } else if (errorMessage.includes("ERR_NETWORK")) {
-      errorType = "CONNECTION_ERROR";
-      userMessage =
-        "Network connection error. Please check your connection and try again.";
-    } else if (isThirdPartyFetchOverride) {
-      errorType = "THIRD_PARTY_INTERFERENCE";
-      userMessage =
-        "Request intercepted by tracking service. Please try again.";
-    }
-
-    console.error("Fetch error in baseApi:", {
-      url: `/api${url.startsWith("/") ? "" : "/"}${url}`,
-      method: typeof args === "string" ? "GET" : args.method || "GET",
-      error: errorMessage,
-      errorType,
-      originalError: error,
-      errorStack,
-      isFullStoryError,
-      isThirdPartyFetchOverride,
-      options: options,
-    });
-
-    // The robust fetch function already handles retries and fallbacks
-    // No need for additional retry logic here
-
-    return {
-      error: {
-        status: errorType,
-        error: errorMessage,
-        data: { message: userMessage },
-      } as FetchBaseQueryError,
-    };
   }
+
+  // Normalize standardized API shape: if success === false, treat as error
+  if (result.data) {
+    const data = result.data as any;
+    if (data && typeof data === "object" && "success" in data) {
+      if (data.success === false) {
+        // Convert to error
+        const errorObj: FetchBaseQueryError = {
+          status: result.meta?.response?.status || 200,
+          data: data,
+        } as any;
+
+        // Show toast for errors
+        try {
+          // Dynamic import to avoid circular dependencies
+          const { toast } = await import("../../hooks/use-toast");
+          const { getFriendlyApiMessage } = await import(
+            "../../lib/apiHandler"
+          );
+          const msg = getFriendlyApiMessage({ status: errorObj.status, data });
+          toast({
+            title: "Request failed",
+            description: msg,
+            variant: "destructive",
+          });
+        } catch (e) {
+          // Ignore toast errors
+        }
+
+        return { error: errorObj };
+      }
+    }
+  }
+
+  // Handle network errors or other failures
+  if (result.error) {
+    try {
+      const { toast } = await import("../../hooks/use-toast");
+      const { getFriendlyApiMessage } = await import("../../lib/apiHandler");
+      const msg = getFriendlyApiMessage(result.error);
+      toast({
+        title: "Request failed",
+        description: msg,
+        variant: "destructive",
+      });
+    } catch (e) {
+      // Ignore toast errors
+    }
+  }
+
+  return result;
 };
 
 // Create the base API slice
